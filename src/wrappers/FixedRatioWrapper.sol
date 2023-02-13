@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import "../BaseWrapper.sol";
 
 contract FixedRatioWrapper is BaseWrapper {
-    string public constant WRAPPER_TYPE = "Fixed Ratio Wrapper"
+    string public constant WRAPPER_TYPE = "Fixed Ratio Wrapper";
 
     uint256 public ratio;
 

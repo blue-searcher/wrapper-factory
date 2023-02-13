@@ -2,24 +2,23 @@
 pragma solidity >=0.8.13;
 
 import { ERC20 } from "solmate/tokens/ERC20.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20.sol";
 
 contract BaseWrapper is ERC20 {
-	IERC20 public constant WRAPPED;
+	ERC20 public WRAPPED;
 
 	event Wrap(
         address indexed from, 
         address indexed to, 
         uint256 tokenAmount,
         uint256 wrapperAmount,
-        uint256 ratio,
+        uint256 ratio
     );
 	event Unwrap(
         address indexed from, 
         address indexed to, 
         uint256 tokenAmount,
         uint256 wrapperAmount,
-        uint256 ratio,
+        uint256 ratio
     );
 
     constructor(
@@ -28,11 +27,11 @@ contract BaseWrapper is ERC20 {
         string memory _symbol,
         uint8 _decimals
     ) ERC20(_name, _symbol, _decimals) {
-    	WRAPPED = IERC20(_token);
+    	WRAPPED = ERC20(_token);
     }
         
     //TODO better to handle 1:1 as ratio = 10000 or something like that
-    function getRatio() public view returns (uint256) {
+    function getRatio() public view virtual returns (uint256) {
         return 1;
     }
 
