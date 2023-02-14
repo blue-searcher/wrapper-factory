@@ -3,7 +3,9 @@ pragma solidity >=0.8.13;
 
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 
-contract BaseWrapper is ERC20 {
+abstract contract BaseWrapper is ERC20 {
+    uint256 public constant UNIT = 1 ether;
+
 	ERC20 public WRAPPED;
 
 	event Wrap(
@@ -30,21 +32,18 @@ contract BaseWrapper is ERC20 {
     	WRAPPED = ERC20(_token);
     }
         
-    //TODO better to handle 1:1 as ratio = 10000 or something like that
-    function getRatio() public view virtual returns (uint256) {
-        return 1;
-    }
+    function getRatio() public view virtual returns (uint256);
 
     function wrap(
     	uint256 _tokenAmount, 
     	address _receiver
     ) external returns (uint256 wrapperAmount) {
-        require(_tokenAmount > 0, "positive-amount-only");
+        if (_tokenAmount == 0) revert PositiveAmountOnly();
 
     	WRAPPED.transferFrom(msg.sender, address(this), _tokenAmount);
 
     	uint256 ratio = getRatio();
-    	wrapperAmount = _tokenAmount * ratio;
+    	wrapperAmount = _tokenAmount * ratio / UNIT;
         _mint(_receiver, wrapperAmount);
 
         emit Wrap(
@@ -60,15 +59,14 @@ contract BaseWrapper is ERC20 {
     	uint256 _wrapperAmount, 
     	address _receiver
     ) external returns (uint256 tokenAmount) {
-        require(_wrapperAmount > 0, "positive-amount-only");
+        if (_wrapperAmount == 0) revert PositiveAmountOnly();
 
     	uint256 ratio = getRatio();
-    	tokenAmount = _wrapperAmount / ratio;
-
+    	tokenAmount = _wrapperAmount / ratio * UNIT;
     	WRAPPED.transfer(_receiver, tokenAmount);
         _burn(msg.sender, _wrapperAmount);
 
-        emit Wrap(
+        emit Unwrap(
             msg.sender, 
             _receiver,
             tokenAmount,
@@ -76,4 +74,6 @@ contract BaseWrapper is ERC20 {
             ratio
         );
     }
+
+    error PositiveAmountOnly();
 }

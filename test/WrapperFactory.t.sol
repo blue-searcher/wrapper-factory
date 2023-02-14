@@ -4,44 +4,99 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 import "src/WrapperFactory.sol";
 import "src/wrappers/FixedRatioWrapper.sol";
+import "./utils/TestERC20.sol";
 
 contract WrapperFactoryTest is Test {
     WrapperFactory public factory;
 
-    ERC20 public wETH;
-    ERC20 public USDC;
+    TestERC20 public TOKEN;
+
+    event NewWrapper(
+        address indexed wrapper, 
+        address indexed token, 
+        address creator,
+        uint256 ratio
+    );
 
     function setUp() public {
         factory = new WrapperFactory();
 
-        wETH = ERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-        USDC = ERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+        TOKEN = new TestERC20(18);
     }
 
-    function testFixedRatio() public {
-        string memory name = "wrapped USDC";
-        string memory symbol = "wUSDC";
-        uint8 decimals = 18;
-        uint256 ratio = 1;
-
+    function testFixedRatio(
+        string memory name,
+        string memory symbol,
+        uint8 decimals,
+        uint256 ratio
+    ) internal {
+        vm.expectEmit(false, true, false, true);
+        emit NewWrapper(address(0), address(TOKEN), address(this), ratio);
         FixedRatioWrapper wrapper = factory.deployFixedRatioWrapper(
-            address(USDC),
-            1,
+            address(TOKEN),
+            ratio,
             name,
             symbol,
             decimals
         );
 
         assertEq(wrapper.WRAPPER_TYPE(), "Fixed Ratio Wrapper");
+        assertEq(address(wrapper.WRAPPED()), address(TOKEN));
         assertEq(wrapper.decimals(), decimals);
         assertEq(wrapper.name(), name);
         assertEq(wrapper.symbol(), symbol);
         assertEq(wrapper.getRatio(), ratio);
-        //TODO Expect event emit
     }
 
-    //Other tests:
-    // - different decimals
-    // - different ratios
-    // - different token param
+    function testFixedRatio18Decimals() public {
+        string memory name = "wrapped TOKEN";
+        string memory symbol = "wTOKEN";
+        uint8 decimals = 18;
+        uint256 ratio = 1 * 1 ether;
+
+        testFixedRatio(name, symbol, decimals, ratio);
+    }
+
+    function testFixedRatio9Decimals() public {
+        string memory name = "wrapped TOKEN";
+        string memory symbol = "wTOKEN";
+        uint8 decimals = 9;
+        uint256 ratio = 1 * 1 ether;
+
+        testFixedRatio(name, symbol, decimals, ratio);
+    }
+
+    function testFixedRatio0Decimals() public {
+        string memory name = "wrapped TOKEN";
+        string memory symbol = "wTOKEN";
+        uint8 decimals = 0;
+        uint256 ratio = 1 * 1 ether;
+
+        testFixedRatio(name, symbol, decimals, ratio);
+    }
+
+    function testFixedRatioHighRatio() public {
+        string memory name = "wrapped TOKEN";
+        string memory symbol = "wTOKEN";
+        uint8 decimals = 18;
+        uint256 ratio = 10000000000000 * 1 ether;
+
+        testFixedRatio(name, symbol, decimals, ratio);
+    }
+
+    function testFixedRatio0Ratio() public {
+        string memory name = "wrapped TOKEN";
+        string memory symbol = "wTOKEN";
+        uint8 decimals = 18;
+        uint256 ratio = 0;
+
+        vm.expectRevert();
+        factory.deployFixedRatioWrapper(
+            address(TOKEN),
+            ratio,
+            name,
+            symbol,
+            decimals
+        );
+    }
 }

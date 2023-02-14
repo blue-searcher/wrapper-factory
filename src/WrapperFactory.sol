@@ -15,9 +15,8 @@ contract WrapperFactory {
     constructor() {
     }
     
-    //wstETH
-    //https://etherscan.io/token/0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0#code
     
+    //for 1:1 wrap:unwrap ratio must be 10**18
     function deployFixedRatioWrapper(
         address _token,
         uint256 _ratio,
@@ -25,6 +24,8 @@ contract WrapperFactory {
         string memory _symbol,
         uint8 _decimals
     ) external returns (FixedRatioWrapper wrapper) {
+        if (_ratio == 0) revert RatioMustBePositive();
+
         wrapper = new FixedRatioWrapper(
             _token,
             _ratio,
@@ -40,4 +41,6 @@ contract WrapperFactory {
             _ratio
         );
     }
+
+    error RatioMustBePositive();
 }
