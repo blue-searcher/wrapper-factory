@@ -2,9 +2,11 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
+import "./utils/TestERC20.sol";
+
 import "src/WrapperFactory.sol";
 import "src/wrappers/FixedRatio.sol";
-import "./utils/TestERC20.sol";
+import "src/wrappers/SharesBased.sol";
 
 contract WrapperFactoryTest is Test {
     WrapperFactory public factory;
@@ -49,6 +51,30 @@ contract WrapperFactoryTest is Test {
         assertEq(wrapper.getUnwrapRatio(1), ratio);
     }
 
+    function testSharesBased(
+        string memory name,
+        string memory symbol,
+        uint8 decimals
+    ) internal {
+        vm.expectEmit(false, true, false, true);
+        emit NewWrapper(address(0), address(TOKEN), address(this), 0);
+        SharesBased wrapper = factory.deploySharesBased(
+            address(TOKEN),
+            name,
+            symbol,
+            decimals
+        );
+
+        assertEq(wrapper.WRAPPER_TYPE(), "Shares Based Wrapper");
+        assertEq(address(wrapper.WRAPPED()), address(TOKEN));
+        assertEq(wrapper.decimals(), decimals);
+        assertEq(wrapper.name(), name);
+        assertEq(wrapper.symbol(), symbol);
+        assertEq(wrapper.getWrapRatio(1), 0);
+        assertEq(wrapper.getUnwrapRatio(1), 0);
+    }
+
+
     function testFixedRatio18Decimals() public {
         string memory name = "wrapped TOKEN";
         string memory symbol = "wTOKEN";
@@ -57,6 +83,15 @@ contract WrapperFactoryTest is Test {
 
         testFixedRatio(name, symbol, decimals, ratio);
     }
+
+    function testSharesBased18Decimals() public {
+        string memory name = "wrapped TOKEN";
+        string memory symbol = "wTOKEN";
+        uint8 decimals = 18;
+
+        testSharesBased(name, symbol, decimals);
+    }
+
 
     function testFixedRatio9Decimals() public {
         string memory name = "wrapped TOKEN";
@@ -67,6 +102,15 @@ contract WrapperFactoryTest is Test {
         testFixedRatio(name, symbol, decimals, ratio);
     }
 
+    function testSharesBased9Decimals() public {
+        string memory name = "wrapped TOKEN";
+        string memory symbol = "wTOKEN";
+        uint8 decimals = 9;
+
+        testSharesBased(name, symbol, decimals);
+    }
+
+
     function testFixedRatio0Decimals() public {
         string memory name = "wrapped TOKEN";
         string memory symbol = "wTOKEN";
@@ -74,6 +118,14 @@ contract WrapperFactoryTest is Test {
         uint256 ratio = 1 * 1 ether;
 
         testFixedRatio(name, symbol, decimals, ratio);
+    }
+
+    function testSharesBased0Decimals() public {
+        string memory name = "wrapped TOKEN";
+        string memory symbol = "wTOKEN";
+        uint8 decimals = 0;
+
+        testSharesBased(name, symbol, decimals);
     }
 
     function testFixedRatioHighRatio() public {

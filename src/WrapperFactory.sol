@@ -2,6 +2,7 @@
 pragma solidity >=0.8.13;
 
 import "./wrappers/FixedRatio.sol";
+import "./wrappers/SharesBased.sol";
 
 contract WrapperFactory {
 
@@ -39,6 +40,27 @@ contract WrapperFactory {
             _token,
             msg.sender,
             _ratio
+        );
+    }
+
+    function deploySharesBased(
+        address _token,
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals
+    ) external returns (SharesBased wrapper) {
+        wrapper = new SharesBased(
+            _token,
+            _name,
+            _symbol,
+            _decimals
+        );
+
+        emit NewWrapper(
+            address(wrapper),
+            _token,
+            msg.sender,
+            0
         );
     }
 

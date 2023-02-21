@@ -41,11 +41,11 @@ abstract contract BaseWrapper is ERC20 {
     ) external returns (uint256 wrapperAmount) {
         if (_tokenAmount == 0) revert PositiveAmountOnly();
 
-    	WRAPPED.transferFrom(msg.sender, address(this), _tokenAmount);
-
     	uint256 ratio = getWrapRatio(_tokenAmount);
     	wrapperAmount = _tokenAmount * ratio / UNIT;
+        
         _mint(_receiver, wrapperAmount);
+        WRAPPED.transferFrom(msg.sender, address(this), _tokenAmount);
 
         emit Wrap(
             msg.sender, 
@@ -64,8 +64,9 @@ abstract contract BaseWrapper is ERC20 {
 
     	uint256 ratio = getUnwrapRatio(_wrapperAmount);
     	tokenAmount = _wrapperAmount / ratio * UNIT;
-    	WRAPPED.transfer(_receiver, tokenAmount);
+
         _burn(msg.sender, _wrapperAmount);
+    	WRAPPED.transfer(_receiver, tokenAmount);
 
         emit Unwrap(
             msg.sender, 
