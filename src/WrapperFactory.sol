@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import "./wrappers/FixedRatioWrapper.sol";
+import "./wrappers/FixedRatio.sol";
 
 contract WrapperFactory {
 
@@ -17,16 +17,16 @@ contract WrapperFactory {
     
     
     //for 1:1 wrap:unwrap ratio must be 10**18
-    function deployFixedRatioWrapper(
+    function deployFixedRatio(
         address _token,
         uint256 _ratio,
         string memory _name,
         string memory _symbol,
         uint8 _decimals
-    ) external returns (FixedRatioWrapper wrapper) {
+    ) external returns (FixedRatio wrapper) {
         if (_ratio == 0) revert RatioMustBePositive();
 
-        wrapper = new FixedRatioWrapper(
+        wrapper = new FixedRatio(
             _token,
             _ratio,
             _name,

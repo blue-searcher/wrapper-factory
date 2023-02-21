@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "src/WrapperFactory.sol";
-import "src/wrappers/FixedRatioWrapper.sol";
+import "src/wrappers/FixedRatio.sol";
 import "./utils/TestERC20.sol";
 
 contract WrapperFactoryTest is Test {
@@ -32,7 +32,7 @@ contract WrapperFactoryTest is Test {
     ) internal {
         vm.expectEmit(false, true, false, true);
         emit NewWrapper(address(0), address(TOKEN), address(this), ratio);
-        FixedRatioWrapper wrapper = factory.deployFixedRatioWrapper(
+        FixedRatio wrapper = factory.deployFixedRatio(
             address(TOKEN),
             ratio,
             name,
@@ -45,7 +45,8 @@ contract WrapperFactoryTest is Test {
         assertEq(wrapper.decimals(), decimals);
         assertEq(wrapper.name(), name);
         assertEq(wrapper.symbol(), symbol);
-        assertEq(wrapper.getRatio(), ratio);
+        assertEq(wrapper.getWrapRatio(1), ratio);
+        assertEq(wrapper.getUnwrapRatio(1), ratio);
     }
 
     function testFixedRatio18Decimals() public {
@@ -91,7 +92,7 @@ contract WrapperFactoryTest is Test {
         uint256 ratio = 0;
 
         vm.expectRevert();
-        factory.deployFixedRatioWrapper(
+        factory.deployFixedRatio(
             address(TOKEN),
             ratio,
             name,

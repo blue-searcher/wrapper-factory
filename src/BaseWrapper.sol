@@ -32,7 +32,8 @@ abstract contract BaseWrapper is ERC20 {
     	WRAPPED = ERC20(_token);
     }
         
-    function getRatio() public view virtual returns (uint256);
+    function getWrapRatio(uint256 _tokenAmount) public view virtual returns (uint256);
+    function getUnwrapRatio(uint256 _wrapperAmount) public view virtual returns (uint256);
 
     function wrap(
     	uint256 _tokenAmount, 
@@ -42,7 +43,7 @@ abstract contract BaseWrapper is ERC20 {
 
     	WRAPPED.transferFrom(msg.sender, address(this), _tokenAmount);
 
-    	uint256 ratio = getRatio();
+    	uint256 ratio = getWrapRatio(_tokenAmount);
     	wrapperAmount = _tokenAmount * ratio / UNIT;
         _mint(_receiver, wrapperAmount);
 
@@ -61,7 +62,7 @@ abstract contract BaseWrapper is ERC20 {
     ) external returns (uint256 tokenAmount) {
         if (_wrapperAmount == 0) revert PositiveAmountOnly();
 
-    	uint256 ratio = getRatio();
+    	uint256 ratio = getUnwrapRatio(_wrapperAmount);
     	tokenAmount = _wrapperAmount / ratio * UNIT;
     	WRAPPED.transfer(_receiver, tokenAmount);
         _burn(msg.sender, _wrapperAmount);

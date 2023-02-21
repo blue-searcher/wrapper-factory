@@ -3,17 +3,17 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "src/WrapperFactory.sol";
-import "src/wrappers/FixedRatioWrapper.sol";
+import "src/wrappers/FixedRatio.sol";
 import "./utils/TestERC20.sol";
 
-contract FixedRatioWrapperTest is Test {
+contract FixedRatioTest is Test {
     WrapperFactory public factory;
 
     uint256 public ratioOne;
     uint256 public ratioTwo;
 
-    FixedRatioWrapper public wrapperOne;
-    FixedRatioWrapper public wrapperTwo;
+    FixedRatio public wrapperOne;
+    FixedRatio public wrapperTwo;
 
     TestERC20 public TOKEN;
     address public constant RANDOM_ADDRESS = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
@@ -45,14 +45,14 @@ contract FixedRatioWrapperTest is Test {
         ratioOne = 1 ether;
         ratioTwo = 0.5 ether;
 
-        wrapperOne = factory.deployFixedRatioWrapper(
+        wrapperOne = factory.deployFixedRatio(
             address(TOKEN),
             ratioOne,
             name,
             symbol,
             18
         );
-        wrapperTwo = factory.deployFixedRatioWrapper(
+        wrapperTwo = factory.deployFixedRatio(
             address(TOKEN),
             ratioTwo,
             name,
@@ -72,8 +72,14 @@ contract FixedRatioWrapperTest is Test {
     }
 
     function testGetRatio() public {
-        assertEq(wrapperOne.getRatio(), ratioOne);
-        assertEq(wrapperTwo.getRatio(), ratioTwo);
+        assertEq(wrapperOne.getWrapRatio(1), ratioOne);
+        assertEq(wrapperTwo.getWrapRatio(1), ratioTwo);
+
+        assertEq(wrapperOne.getUnwrapRatio(1), ratioOne);
+        assertEq(wrapperTwo.getUnwrapRatio(1), ratioTwo);
+
+        assertEq(wrapperOne.getWrapRatio(1), wrapperOne.getUnwrapRatio(1));
+        assertEq(wrapperTwo.getWrapRatio(1), wrapperTwo.getUnwrapRatio(1));
     }
 
     function testGetWrappedAddress() public {
@@ -83,7 +89,7 @@ contract FixedRatioWrapperTest is Test {
 
     function _wrap(
         uint256 _tokenAmount,
-        FixedRatioWrapper _wrapper, 
+        FixedRatio _wrapper, 
         address _receiver
     ) internal returns (uint256 tokenAmount, uint256 wrapperAmount) {
         TOKEN.approve(address(_wrapper), type(uint256).max);
@@ -93,14 +99,14 @@ contract FixedRatioWrapperTest is Test {
 
     function _unwrap(
         uint256 _wrapperAmount,
-        FixedRatioWrapper _wrapper, 
+        FixedRatio _wrapper, 
         address _receiver
     ) internal returns (uint256 wrapperAmount, uint256 tokenAmount) {
         wrapperAmount = _wrapperAmount;
         tokenAmount = _wrapper.unwrap(_wrapperAmount, _receiver);
     }
 
-    function _testWrapBalances(FixedRatioWrapper _wrapper) internal {
+    function _testWrapBalances(FixedRatio _wrapper) internal {
         uint256 preTokenBalance = TOKEN.balanceOf(address(this));
         uint256 preWrapperBalance = _wrapper.balanceOf(address(this));
 
@@ -121,7 +127,7 @@ contract FixedRatioWrapperTest is Test {
         _testWrapBalances(wrapperTwo);
     }
 
-    function _testWrapDifferentReceiverBalances(FixedRatioWrapper _wrapper) internal {
+    function _testWrapDifferentReceiverBalances(FixedRatio _wrapper) internal {
         uint256 preTokenBalance = TOKEN.balanceOf(address(this));
         uint256 preWrapperBalance = _wrapper.balanceOf(address(this));
         uint256 preReceiverWrapperBalance = _wrapper.balanceOf(RANDOM_ADDRESS);
@@ -149,7 +155,7 @@ contract FixedRatioWrapperTest is Test {
         TOKEN.approve(address(wrapperTwo), type(uint256).max);
         uint256 tokenAmount = 1 ether;
 
-        uint256 expectedWrapperAmount = tokenAmount * wrapperTwo.getRatio() / wrapperTwo.UNIT();
+        uint256 expectedWrapperAmount = tokenAmount * wrapperTwo.getWrapRatio(1) / wrapperTwo.UNIT();
 
         vm.expectEmit(true, true, true, true);
         emit Wrap(address(this), address(this), tokenAmount, expectedWrapperAmount, ratioTwo);
@@ -176,7 +182,7 @@ contract FixedRatioWrapperTest is Test {
         wrapperOne.wrap(tokenAmount, address(this));
     }
 
-    function _testUnwrapBalances(FixedRatioWrapper _wrapper) internal {
+    function _testUnwrapBalances(FixedRatio _wrapper) internal {
         (uint256 wrapTokenAmount, uint256 wrapWrapperAmount) = _wrap(1 ether, _wrapper, address(this));
 
         uint256 preTokenBalance = TOKEN.balanceOf(address(this));
