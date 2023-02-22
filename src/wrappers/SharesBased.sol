@@ -18,16 +18,16 @@ contract SharesBased is BaseWrapper {
     ) BaseWrapper(_token, _name, _symbol, _decimals) {
     }
 
-    function getWrapRatio(uint256 _tokenAmount) public view override returns (uint256) {
+    function getWrapAmountOut(uint256 _tokenAmount) public view override returns (uint256) {
         uint256 totalTokens = WRAPPED.balanceOf(address(this));
         if (totalTokens == 0) {
-            //Handle first ever wrap()
+            //Handle first wrap()
             return _tokenAmount;
         }
         return _tokenAmount * totalSupply / totalTokens;
     }
 
-    function getUnwrapRatio(uint256 _wrapperAmount) public view override returns (uint256) {
+    function getUnwrapAmountOut(uint256 _wrapperAmount) public view override returns (uint256) {
         if (totalSupply == 0) {
             return 0;
         }

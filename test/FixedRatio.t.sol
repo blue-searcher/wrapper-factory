@@ -22,15 +22,13 @@ contract FixedRatioTest is Test {
         address indexed from, 
         address indexed to, 
         uint256 tokenAmount,
-        uint256 wrapperAmount,
-        uint256 ratio
+        uint256 wrapperAmount
     );
     event Unwrap(
         address indexed from, 
         address indexed to, 
         uint256 tokenAmount,
-        uint256 wrapperAmount,
-        uint256 ratio
+        uint256 wrapperAmount
     );
 
     function setUp() public {
@@ -72,14 +70,8 @@ contract FixedRatioTest is Test {
     }
 
     function testGetRatio() public {
-        assertEq(wrapperOne.getWrapRatio(1), ratioOne);
-        assertEq(wrapperTwo.getWrapRatio(1), ratioTwo);
-
-        assertEq(wrapperOne.getUnwrapRatio(1), ratioOne);
-        assertEq(wrapperTwo.getUnwrapRatio(1), ratioTwo);
-
-        assertEq(wrapperOne.getWrapRatio(1), wrapperOne.getUnwrapRatio(1));
-        assertEq(wrapperTwo.getWrapRatio(1), wrapperTwo.getUnwrapRatio(1));
+        assertEq(wrapperOne.ratio(), ratioOne);
+        assertEq(wrapperTwo.ratio(), ratioTwo);
     }
 
     function testGetWrappedAddress() public {
@@ -155,10 +147,10 @@ contract FixedRatioTest is Test {
         TOKEN.approve(address(wrapperTwo), type(uint256).max);
         uint256 tokenAmount = 1 ether;
 
-        uint256 expectedWrapperAmount = tokenAmount * wrapperTwo.getWrapRatio(1) / wrapperTwo.UNIT();
+        uint256 expectedWrapperAmount = wrapperTwo.getWrapAmountOut(1 ether);
 
         vm.expectEmit(true, true, true, true);
-        emit Wrap(address(this), address(this), tokenAmount, expectedWrapperAmount, ratioTwo);
+        emit Wrap(address(this), address(this), tokenAmount, expectedWrapperAmount);
         wrapperTwo.wrap(tokenAmount, address(this));
     }
 
@@ -211,7 +203,7 @@ contract FixedRatioTest is Test {
         (uint256 tokenAmount, uint256 wrapperAmount) = _wrap(1 ether, wrapperTwo, address(this));
 
         vm.expectEmit(true, true, true, true);
-        emit Unwrap(address(this), address(this), tokenAmount, wrapperAmount, ratioTwo);
+        emit Unwrap(address(this), address(this), tokenAmount, wrapperAmount);
         wrapperTwo.unwrap(wrapperAmount, address(this));
     }
 }

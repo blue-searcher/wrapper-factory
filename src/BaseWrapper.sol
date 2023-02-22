@@ -6,21 +6,19 @@ import { ERC20 } from "solmate/tokens/ERC20.sol";
 abstract contract BaseWrapper is ERC20 {
     uint256 public constant UNIT = 1 ether;
 
-	ERC20 public WRAPPED;
+    ERC20 public WRAPPED;
 
-	event Wrap(
+    event Wrap(
         address indexed from, 
         address indexed to, 
         uint256 tokenAmount,
-        uint256 wrapperAmount,
-        uint256 ratio
+        uint256 wrapperAmount
     );
-	event Unwrap(
+    event Unwrap(
         address indexed from, 
         address indexed to, 
         uint256 tokenAmount,
-        uint256 wrapperAmount,
-        uint256 ratio
+        uint256 wrapperAmount
     );
 
     constructor(
@@ -32,8 +30,8 @@ abstract contract BaseWrapper is ERC20 {
     	WRAPPED = ERC20(_token);
     }
         
-    function getWrapRatio(uint256 _tokenAmount) public view virtual returns (uint256);
-    function getUnwrapRatio(uint256 _wrapperAmount) public view virtual returns (uint256);
+    function getWrapAmountOut(uint256 _tokenAmount) public view virtual returns (uint256);
+    function getUnwrapAmountOut(uint256 _wrapperAmount) public view virtual returns (uint256);
 
     function wrap(
     	uint256 _tokenAmount, 
@@ -41,8 +39,7 @@ abstract contract BaseWrapper is ERC20 {
     ) external returns (uint256 wrapperAmount) {
         if (_tokenAmount == 0) revert PositiveAmountOnly();
 
-    	uint256 ratio = getWrapRatio(_tokenAmount);
-    	wrapperAmount = _tokenAmount * ratio / UNIT;
+    	wrapperAmount = getWrapAmountOut(_tokenAmount);
         
         _mint(_receiver, wrapperAmount);
         WRAPPED.transferFrom(msg.sender, address(this), _tokenAmount);
@@ -51,8 +48,7 @@ abstract contract BaseWrapper is ERC20 {
             msg.sender, 
             _receiver,
             _tokenAmount,
-            wrapperAmount,
-            ratio
+            wrapperAmount
         );
     }
 
@@ -62,8 +58,7 @@ abstract contract BaseWrapper is ERC20 {
     ) external returns (uint256 tokenAmount) {
         if (_wrapperAmount == 0) revert PositiveAmountOnly();
 
-    	uint256 ratio = getUnwrapRatio(_wrapperAmount);
-    	tokenAmount = _wrapperAmount / ratio * UNIT;
+        tokenAmount = getUnwrapAmountOut(_wrapperAmount);
 
         _burn(msg.sender, _wrapperAmount);
     	WRAPPED.transfer(_receiver, tokenAmount);
@@ -72,8 +67,7 @@ abstract contract BaseWrapper is ERC20 {
             msg.sender, 
             _receiver,
             tokenAmount,
-            _wrapperAmount,
-            ratio
+            _wrapperAmount
         );
     }
 

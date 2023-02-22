@@ -18,15 +18,13 @@ contract SharesBasedTest is Test {
         address indexed from, 
         address indexed to, 
         uint256 tokenAmount,
-        uint256 wrapperAmount,
-        uint256 ratio
+        uint256 wrapperAmount
     );
     event Unwrap(
         address indexed from, 
         address indexed to, 
         uint256 tokenAmount,
-        uint256 wrapperAmount,
-        uint256 ratio
+        uint256 wrapperAmount
     );
 
     function setUp() public {
@@ -56,8 +54,8 @@ contract SharesBasedTest is Test {
     }
 
     function testInitialRatio() public {
-        assertEq(wrapper.getWrapRatio(1), 1);
-        assertEq(wrapper.getUnwrapRatio(1), 0);
+        assertEq(wrapper.getWrapAmountOut(1 ether), 1 ether);
+        assertEq(wrapper.getUnwrapAmountOut(1 ether), 0);
     }
 
     function testGetWrappedAddress() public {
@@ -93,7 +91,7 @@ contract SharesBasedTest is Test {
 
         assertEq(preTokenBalance - postTokenBalance, depositAmount);
 
-        //first wrap() set total shares to same amount of deposited tokens:
+        //first wrap() set total shares to same amount of deposited tokens
         assertEq(postWrapperBalance - preWrapperBalance, depositAmount);
         assertEq(preTokenBalance - postTokenBalance, postWrapperBalance - preWrapperBalance);
         assertEq(wrapperAmount, depositAmount);
@@ -120,7 +118,7 @@ contract SharesBasedTest is Test {
         uint256 tokenAmount = 1 ether;
 
         vm.expectEmit(true, true, true, true);
-        emit Wrap(address(this), address(this), tokenAmount, tokenAmount, wrapper.UNIT());
+        emit Wrap(address(this), address(this), tokenAmount, tokenAmount);
         wrapper.wrap(tokenAmount, address(this));
     }
 
@@ -164,20 +162,34 @@ contract SharesBasedTest is Test {
     function testUnwrapRatioAfterFirstUnwrap() public {
         (uint256 tokenAmount, uint256 wrapperAmount) = _wrap(1 ether, address(this));
 
-        assertEq(wrapper.getUnwrapRatio(tokenAmount), wrapper.UNIT());
+        assertEq(wrapper.getUnwrapAmountOut(tokenAmount), tokenAmount);
         _unwrap(wrapperAmount, address(this));
-        assertEq(wrapper.getUnwrapRatio(tokenAmount), 0);
+        assertEq(wrapper.getUnwrapAmountOut(tokenAmount), 0);
     }
 
     function testUnwrapEventEmit() public {
         (uint256 tokenAmount, uint256 wrapperAmount) = _wrap(1 ether, address(this));
 
         vm.expectEmit(true, true, true, true);
-        emit Unwrap(address(this), address(this), tokenAmount, tokenAmount, wrapper.UNIT());
+        emit Unwrap(address(this), address(this), tokenAmount, tokenAmount);
         wrapper.unwrap(wrapperAmount, address(this));
     }
 
-    //TODO Test balances with multiple wrap/unwrap from different addresses
-    //TODO Update TOKEN balances to test rebalance tokens like stETH
+    function testUnwrapAfterTokenRebalance() public {
+        _wrap(1 ether, RANDOM_ADDRESS);
+        (uint256 wrapTokenAmount, uint256 wrapWrapperAmount) = _wrap(1 ether, address(this));
+
+        uint256 preBurnWrappedBalance = TOKEN.balanceOf(address(wrapper));
+        assertEq(preBurnWrappedBalance, 2 ether);
+
+        uint256 amountToBurn = preBurnWrappedBalance / 2;
+        TOKEN.burn(address(wrapper), amountToBurn);
+
+        uint256 postBurnWrappedBalance = TOKEN.balanceOf(address(wrapper));
+        assertEq(postBurnWrappedBalance, preBurnWrappedBalance - amountToBurn);
+
+        (, uint256 unwrapTokenAmount) = _unwrap(wrapWrapperAmount, address(this));
+        assertEq(wrapTokenAmount / 2, unwrapTokenAmount);
+    }
 
 }

@@ -41,11 +41,11 @@ contract FixedRatio is BaseWrapper {
         ratio = _ratio;
     }
 
-    function getWrapRatio(uint256) public view override returns (uint256) {
-        return ratio;
+    function getWrapAmountOut(uint256 _tokenAmount) public view override returns (uint256) {
+        return _tokenAmount * ratio / UNIT;
     }
 
-    function getUnwrapRatio(uint256) public view override returns (uint256) {
-        return ratio;
+    function getUnwrapAmountOut(uint256 _wrapperAmount) public view override returns (uint256) {
+        return _wrapperAmount / ratio * UNIT;
     }
 }

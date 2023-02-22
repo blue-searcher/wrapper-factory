@@ -47,8 +47,9 @@ contract WrapperFactoryTest is Test {
         assertEq(wrapper.decimals(), decimals);
         assertEq(wrapper.name(), name);
         assertEq(wrapper.symbol(), symbol);
-        assertEq(wrapper.getWrapRatio(1), ratio);
-        assertEq(wrapper.getUnwrapRatio(1), ratio);
+        assertEq(wrapper.ratio(), ratio);
+        assertEq(wrapper.getWrapAmountOut(1 ether), 1 ether * ratio / wrapper.UNIT());
+        assertEq(wrapper.getUnwrapAmountOut(1 ether), 1 ether / ratio * wrapper.UNIT());
     }
 
     function testSharesBased(
@@ -70,8 +71,8 @@ contract WrapperFactoryTest is Test {
         assertEq(wrapper.decimals(), decimals);
         assertEq(wrapper.name(), name);
         assertEq(wrapper.symbol(), symbol);
-        assertEq(wrapper.getWrapRatio(1), 0);
-        assertEq(wrapper.getUnwrapRatio(1), 0);
+        assertEq(wrapper.getWrapAmountOut(1 ether), 1 ether);
+        assertEq(wrapper.getUnwrapAmountOut(1 ether), 0);
     }
 
 
