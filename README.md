@@ -25,3 +25,5 @@ View functions:
 
 
 Inspired by [Generalized Wrapper-token Factory](https://mirror.xyz/kyoro.eth/4wHrYiOr7QlVOFdK4jMSEMz6yOdWD53QFazEn_acfFQ) post.
+
+Deployed on [Goerli Testnet](https://goerli.etherscan.io/address/0x23b1ee0f7dab3a47c0326c75b339a6af53379278).
