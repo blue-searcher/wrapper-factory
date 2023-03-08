@@ -27,7 +27,8 @@ wrapperAmount = 29885.875670327548 * 10**12 WOOFY
 */
 
 contract FixedRatio is BaseWrapper {
-    string public constant WRAPPER_TYPE = "Fixed Ratio Wrapper";
+    string public constant WRAPPER_DESCRIPTION = "Fixed Ratio Wrapper";
+    uint256 public constant WRAPPER_TYPE = 0;
 
     uint256 public ratio;
 

@@ -16,8 +16,9 @@ contract WrapperFactoryTest is Test {
     event NewWrapper(
         address indexed wrapper, 
         address indexed token, 
+        uint256 indexed wrapperType,
         address creator,
-        uint256 ratio
+        uint256 id
     );
 
     function setUp() public {
@@ -33,7 +34,7 @@ contract WrapperFactoryTest is Test {
         uint256 ratio
     ) internal {
         vm.expectEmit(false, true, false, true);
-        emit NewWrapper(address(0), address(TOKEN), address(this), ratio);
+        emit NewWrapper(address(0), address(TOKEN), 0, address(this), 0);
         FixedRatio wrapper = factory.deployFixedRatio(
             address(TOKEN),
             ratio,
@@ -42,7 +43,8 @@ contract WrapperFactoryTest is Test {
             decimals
         );
 
-        assertEq(wrapper.WRAPPER_TYPE(), "Fixed Ratio Wrapper");
+        assertEq(wrapper.WRAPPER_DESCRIPTION(), "Fixed Ratio Wrapper");
+        assertEq(wrapper.WRAPPER_TYPE(), 0);
         assertEq(address(wrapper.WRAPPED()), address(TOKEN));
         assertEq(wrapper.decimals(), decimals);
         assertEq(wrapper.name(), name);
@@ -58,7 +60,7 @@ contract WrapperFactoryTest is Test {
         uint8 decimals
     ) internal {
         vm.expectEmit(false, true, false, true);
-        emit NewWrapper(address(0), address(TOKEN), address(this), 0);
+        emit NewWrapper(address(0), address(TOKEN), 1, address(this), 0);
         SharesBased wrapper = factory.deploySharesBased(
             address(TOKEN),
             name,
@@ -66,7 +68,8 @@ contract WrapperFactoryTest is Test {
             decimals
         );
 
-        assertEq(wrapper.WRAPPER_TYPE(), "Shares Based Wrapper");
+        assertEq(wrapper.WRAPPER_DESCRIPTION(), "Shares Based Wrapper");
+        assertEq(wrapper.WRAPPER_TYPE(), 1);
         assertEq(address(wrapper.WRAPPED()), address(TOKEN));
         assertEq(wrapper.decimals(), decimals);
         assertEq(wrapper.name(), name);
@@ -152,5 +155,43 @@ contract WrapperFactoryTest is Test {
             symbol,
             decimals
         );
+    }
+
+    function testFixedRatioNextId() public {
+        string memory name = "wrapped TOKEN";
+        string memory symbol = "wTOKEN";
+        uint8 decimals = 18;
+        uint256 ratio = 1 * 1 ether;
+
+        assertEq(factory.nextId(), 0);
+        
+        FixedRatio wrapper = factory.deployFixedRatio(
+            address(TOKEN),
+            ratio,
+            name,
+            symbol,
+            decimals
+        );
+
+        assertEq(factory.nextId(), 1);
+        assertEq(factory.wrapperById(0), address(wrapper));
+    }
+
+    function testSharesBasedNextId() public {
+        string memory name = "wrapped TOKEN";
+        string memory symbol = "wTOKEN";
+        uint8 decimals = 18;
+
+        assertEq(factory.nextId(), 0);
+        
+        SharesBased wrapper = factory.deploySharesBased(
+            address(TOKEN),
+            name,
+            symbol,
+            decimals
+        );
+
+        assertEq(factory.nextId(), 1);
+        assertEq(factory.wrapperById(0), address(wrapper));
     }
 }

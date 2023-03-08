@@ -65,8 +65,11 @@ contract FixedRatioTest is Test {
 
     function testWrapperType() public {
         string memory wrapperTypeDescription = "Fixed Ratio Wrapper";
-        assertEq(wrapperOne.WRAPPER_TYPE(), wrapperTypeDescription);
-        assertEq(wrapperTwo.WRAPPER_TYPE(), wrapperTypeDescription);
+        assertEq(wrapperOne.WRAPPER_DESCRIPTION(), wrapperTypeDescription);
+        assertEq(wrapperTwo.WRAPPER_DESCRIPTION(), wrapperTypeDescription);
+
+        assertEq(wrapperOne.WRAPPER_TYPE(), 0);
+        assertEq(wrapperTwo.WRAPPER_TYPE(), 0);
     }
 
     function testGetRatio() public {

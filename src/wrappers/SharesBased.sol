@@ -8,7 +8,8 @@ wstETH - like wrapper
 */
 
 contract SharesBased is BaseWrapper {
-    string public constant WRAPPER_TYPE = "Shares Based Wrapper";
+    string public constant WRAPPER_DESCRIPTION = "Shares Based Wrapper";
+    uint256 public constant WRAPPER_TYPE = 1;
 
     constructor(
         address _token,

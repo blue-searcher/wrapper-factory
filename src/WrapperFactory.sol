@@ -5,12 +5,15 @@ import "./wrappers/FixedRatio.sol";
 import "./wrappers/SharesBased.sol";
 
 contract WrapperFactory {
+    uint256 public nextId;
+    mapping(uint256 => address) public wrapperById;
 
     event NewWrapper(
         address indexed wrapper, 
         address indexed token, 
+        uint256 indexed wrapperType,
         address creator,
-        uint256 ratio
+        uint256 id
     );
 
     constructor() {
@@ -35,12 +38,17 @@ contract WrapperFactory {
             _decimals
         );
 
+        wrapperById[nextId] = address(wrapper);
+
         emit NewWrapper(
             address(wrapper),
             _token,
+            wrapper.WRAPPER_TYPE(),
             msg.sender,
-            _ratio
+            nextId
         );
+
+        nextId += 1;
     }
 
     function deploySharesBased(
@@ -56,12 +64,17 @@ contract WrapperFactory {
             _decimals
         );
 
+        wrapperById[nextId] = address(wrapper);
+
         emit NewWrapper(
             address(wrapper),
             _token,
+            wrapper.WRAPPER_TYPE(),
             msg.sender,
-            0
+            nextId
         );
+
+        nextId += 1;
     }
 
     error RatioMustBePositive();

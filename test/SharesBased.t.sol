@@ -50,7 +50,8 @@ contract SharesBasedTest is Test {
 
     function testWrapperType() public {
         string memory wrapperTypeDescription = "Shares Based Wrapper";
-        assertEq(wrapper.WRAPPER_TYPE(), wrapperTypeDescription);
+        assertEq(wrapper.WRAPPER_DESCRIPTION(), wrapperTypeDescription);
+        assertEq(wrapper.WRAPPER_TYPE(), 1);
     }
 
     function testInitialRatio() public {
