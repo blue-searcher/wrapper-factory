@@ -1,5 +1,7 @@
 # wrapped-factory
 
+UI: [wrapper-factory.vercel.app](https://wrapper-factory.vercel.app)
+
 Factory contract to deploy wrapped tokens.
 
 #### Factory
@@ -26,4 +28,4 @@ View functions:
 
 Inspired by [Generalized Wrapper-token Factory](https://mirror.xyz/kyoro.eth/4wHrYiOr7QlVOFdK4jMSEMz6yOdWD53QFazEn_acfFQ) post.
 
-Deployed on [Goerli Testnet](https://goerli.etherscan.io/address/0x19C719029B34Ee15d5a12C8c95d09Ba35De62547).
+Deployed on [Goerli Testnet](https://goerli.etherscan.io/address/0xE6eB6B9AB5DeB33e77A63673d6a2c2C06539373e).
