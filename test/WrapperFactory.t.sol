@@ -24,7 +24,7 @@ contract WrapperFactoryTest is Test {
     function setUp() public {
         factory = new WrapperFactory();
 
-        TOKEN = new TestERC20(18);
+        TOKEN = new TestERC20("TEST", "Test token", 18);
     }
 
     function testFixedRatio(
