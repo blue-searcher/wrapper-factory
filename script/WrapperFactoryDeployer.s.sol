@@ -14,7 +14,7 @@ contract WrapperFactoryDeployer is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        WrapperFactory factory = new WrapperFactory();
+        new WrapperFactory();
 
         vm.stopBroadcast();
     }

@@ -4,8 +4,6 @@ pragma solidity >=0.8.13;
 import { ERC20 } from "solmate/tokens/ERC20.sol";
 
 abstract contract BaseWrapper is ERC20 {
-    uint256 public constant UNIT = 1 ether;
-
     ERC20 public WRAPPED;
 
     event Wrap(

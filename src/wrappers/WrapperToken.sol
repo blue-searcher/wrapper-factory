@@ -3,27 +3,24 @@ pragma solidity >=0.8.13;
 
 import "../BaseWrapper.sol";
 
-/*
-wstETH - like wrapper
-*/
-
-contract SharesBased is BaseWrapper {
-    string public constant WRAPPER_DESCRIPTION = "Shares Based Wrapper";
-    uint256 public constant WRAPPER_TYPE = 1;
+contract WrapperToken is BaseWrapper {
+    uint256 public initialRatio;
 
     constructor(
         address _token,
+        uint256 _initialRatio,
         string memory _name,
         string memory _symbol,
         uint8 _decimals
     ) BaseWrapper(_token, _name, _symbol, _decimals) {
+        initialRatio = _initialRatio;
     }
 
     function getWrapAmountOut(uint256 _tokenAmount) public view override returns (uint256) {
         uint256 totalTokens = WRAPPED.balanceOf(address(this));
         if (totalTokens == 0) {
-            //Handle first wrap()
-            return _tokenAmount;
+            //Handle first wrap
+            return initialRatio * _tokenAmount;
         }
         return _tokenAmount * totalSupply / totalTokens;
     }

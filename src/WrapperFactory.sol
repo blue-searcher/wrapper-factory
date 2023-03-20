@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import "./wrappers/FixedRatio.sol";
-import "./wrappers/SharesBased.sol";
+import "./wrappers/WrapperToken.sol";
 
 contract WrapperFactory {
     uint256 public nextId;
@@ -11,28 +10,22 @@ contract WrapperFactory {
     event NewWrapper(
         address indexed wrapper, 
         address indexed token, 
-        uint256 indexed wrapperType,
         address creator,
         uint256 id
     );
 
-    constructor() {
-    }
-    
-    
-    //for 1:1 wrap:unwrap ratio must be 10**18
-    function deployFixedRatio(
+    function deploy(
         address _token,
-        uint256 _ratio,
+        uint256 _initialRatio,
         string memory _name,
         string memory _symbol,
         uint8 _decimals
-    ) external returns (FixedRatio wrapper) {
-        if (_ratio == 0) revert RatioMustBePositive();
+    ) external returns (WrapperToken wrapper) {
+        if (_initialRatio == 0) revert RatioMustBePositive();
 
-        wrapper = new FixedRatio(
+        wrapper = new WrapperToken(
             _token,
-            _ratio,
+            _initialRatio,
             _name,
             _symbol,
             _decimals
@@ -43,33 +36,6 @@ contract WrapperFactory {
         emit NewWrapper(
             address(wrapper),
             _token,
-            wrapper.WRAPPER_TYPE(),
-            msg.sender,
-            nextId
-        );
-
-        nextId += 1;
-    }
-
-    function deploySharesBased(
-        address _token,
-        string memory _name,
-        string memory _symbol,
-        uint8 _decimals
-    ) external returns (SharesBased wrapper) {
-        wrapper = new SharesBased(
-            _token,
-            _name,
-            _symbol,
-            _decimals
-        );
-
-        wrapperById[nextId] = address(wrapper);
-
-        emit NewWrapper(
-            address(wrapper),
-            _token,
-            wrapper.WRAPPER_TYPE(),
             msg.sender,
             nextId
         );
