@@ -20,7 +20,7 @@ contract WrapperToken is BaseWrapper {
         uint256 totalTokens = WRAPPED.balanceOf(address(this));
         if (totalTokens == 0) {
             //Handle first wrap
-            return initialRatio * _tokenAmount;
+            return initialRatio * _tokenAmount / UNIT;
         }
         return _tokenAmount * totalSupply / totalTokens;
     }

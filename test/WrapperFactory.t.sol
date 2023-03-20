@@ -46,7 +46,7 @@ contract WrapperFactoryTest is Test {
         assertEq(wrapper.name(), name);
         assertEq(wrapper.symbol(), symbol);
         assertEq(wrapper.initialRatio(), ratio);
-        assertEq(wrapper.getWrapAmountOut(1 ether), 1 ether * ratio);
+        assertEq(wrapper.getWrapAmountOut(1 ether), 1 ether * ratio / wrapper.UNIT());
         assertEq(wrapper.getUnwrapAmountOut(1 ether), 0); //Tested on WrapperToken.t.sol
     }
 
